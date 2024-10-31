@@ -17,10 +17,10 @@ export class ViewController {
       APP_URI: process.env.APP_URL };
   }
 
-  @Get('/register')
-  @Render('register')
-  async registerPage() {
-    return { message: 'Hello world!' };
-  }
+  // @Get('/register')
+  // @Render('register')
+  // async registerPage() {
+  //   return { message: 'Hello world!' };
+  // }
 
 }
