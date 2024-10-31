@@ -13,7 +13,8 @@ export class ViewController {
   @Get('')
   @Render('login')
   async loginPage() {
-    return { message: 'Hello world!' };
+    return { AUTH_URI: process.env.AUTH_URL,
+      APP_URI: process.env.APP_URL };
   }
 
   @Get('/register')
