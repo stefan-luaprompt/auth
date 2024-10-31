@@ -14,7 +14,7 @@ export class JwksController {
     // Define the JWKS endpoint
     @Get('/.well-known/jwks.json')
     async getJwks() {
-        console.log('Generating JWKS');
+        // console.log('Generating JWKS');
         const keyStore = jose.JWK.createKeyStore();
 
         // Import the PEM-formatted public key
@@ -23,7 +23,7 @@ export class JwksController {
         // Generate the `kid` (Key ID) by hashing the public key (base64url encoded)
         const pubKey = key.toPEM(false); // Get the PEM-formatted public key (false means public key)
         const kid = crypto.createHash('sha256').update(pubKey).digest('base64url'); // Generate kid
-        console.log('kid:', kid);
+        // console.log('kid:', kid);
         // Export the key in JWK format and include the dynamically generated kid
         const jwkKey = key.toJSON();
         jwkKey.kid = kid; // Set the dynamically generated kid

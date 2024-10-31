@@ -144,7 +144,7 @@ body
         // Helper function to set the auth token with cross-domain cookie settings
         function setAuthToken(token) {
             const isProduction = window.location.hostname !== 'localhost';
-            console.log(isProduction);
+            //- console.log(isProduction);
             const domain = isProduction ? '.luaprompt.com' : 'localhost';
             document.cookie = `access_token=${token}; Path=/; Domain=${domain}; SameSite=None; Secure;`;
 

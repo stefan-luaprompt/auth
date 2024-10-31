@@ -31,7 +31,7 @@ export class AuthService {
             });
             const isBlacklisted = await this.tokenBlacklistService.isTokenBlacklisted(payload.jti);
             if (isBlacklisted) throw new Error('Token is blacklisted');
-            console.log(payload)
+            // console.log(payload)
             return payload;
         } catch (error) {
             throw new HttpException('Invalid token', HttpStatus.UNAUTHORIZED)
@@ -53,7 +53,7 @@ export class AuthService {
         const kid = crypto.createHash('sha256').update(pubKey).digest('base64url'); // Generate kid as a hash of public key
         const jti = crypto.randomUUID();
 
-        console.log('jti:', jti);
+        // console.log('jti:', jti);
 
         // Step 2: Define the payload
         const payload = { username: user.username, sub: user.userid, roles: user.roles, scopes: user.roles, jti };
