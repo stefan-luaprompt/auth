@@ -141,9 +141,20 @@ body
         const AUTH_URI = '!{AUTH_URI}';
         const APP_URI = '!{APP_URI}';
 
+        // Helper function to set the auth token with cross-domain cookie settings
+        function setAuthToken(token) {
+            const isProduction = window.location.hostname !== 'localhost';
+            console.log(isProduction);
+            const domain = isProduction ? '.luaprompt.com' : 'localhost';
+            document.cookie = `access_token=${token}; Path=/; Domain=${domain}; SameSite=None; Secure;`;
+
+            
+        }
+
         // Function to check token on page load
         async function checkAuthToken() {
             const token = getAuthTokenFromCookies();
+            
             if (!token) return; // Prevent endless loop if no token
 
             try {
@@ -163,14 +174,14 @@ body
             }
         }
 
-        // Function to log in and store the token in cookies
+        // Updated login function with cross-domain cookie settings
         async function login(event) {
             event.preventDefault(); // Prevent form submission
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
 
             try {
-                const response = await fetch(AUTH_URI + '/api/auth/login', {
+                const response = await fetch(`${AUTH_URI}/api/auth/login`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ username: email, password: password })
@@ -184,11 +195,11 @@ body
                 const token = data.access_token;
 
                 if (token) {
-                    // Set token in cookie with proper settings
-                    document.cookie = `access_token=${token}; Path=/; SameSite=Lax; Secure`;
+                    // Set token with cross-domain settings
+                    setAuthToken(token);
 
                     // Redirect to APP_URI
-                    window.location.href = APP_URI;
+                    //- window.location.href = APP_URI;
                 }
             } catch (error) {
                 console.error('Login error:', error);
@@ -205,7 +216,11 @@ body
 
         // Helper function to delete the auth token cookie
         function deleteAuthToken() {
-            document.cookie = 'access_token=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 UTC; SameSite=Lax; Secure';
+            const isProduction = window.location.hostname !== 'localhost';
+            const domain = isProduction ? '.luaprompt.com' : 'localhost';
+            document.cookie = `access_token=; Path=/; Domain=${domain}; Expires=Thu, 01 Jan 1970 00:00:00 UTC; SameSite=None; ${
+                isProduction ? 'Secure;' : ''
+            }`;
         }
 
         // Check for token on page load
