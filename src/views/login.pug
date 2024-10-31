@@ -136,11 +136,34 @@ body
         .buttons-container
             // ... Social login buttons as before
 
-    // Add JavaScript for handling login with injected AUTH_URI and APP_URI
+    // JavaScript for handling login and redirecting on page load
     script.
         const AUTH_URI = '!{AUTH_URI}';
         const APP_URI = '!{APP_URI}';
 
+        // Function to check token on page load
+        async function checkAuthToken() {
+            const token = getAuthTokenFromCookies();
+            if (token) {
+                try {
+                    const response = await fetch(AUTH_URI + '/api/auth/validate', {
+                        method: 'GET',
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+
+                    if (response.ok) {
+                        // Redirect to authenticated app
+                        window.location.href = APP_URI;
+                    } else if (response.status === 401) {
+                        deleteAuthToken(); // Delete invalid token
+                    }
+                } catch (error) {
+                    console.error('Token validation error:', error);
+                }
+            }
+        }
+
+        // Function to log in and store the token in cookies
         async function login(event) {
             event.preventDefault(); // Prevent form submission
             const email = document.getElementById('email').value;
@@ -152,7 +175,7 @@ body
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ username: email, password: password })
                 });
-                
+
                 if (!response.ok) {
                     throw new Error('Login failed');
                 }
@@ -172,3 +195,18 @@ body
                 alert('Failed to login. Please check your credentials and try again.');
             }
         }
+
+        // Helper function to get the auth token from cookies
+        function getAuthTokenFromCookies() {
+            const cookies = document.cookie.split('; ');
+            const tokenCookie = cookies.find(cookie => cookie.startsWith('access_token='));
+            return tokenCookie ? tokenCookie.split('=')[1] : null;
+        }
+
+        // Helper function to delete the auth token cookie
+        function deleteAuthToken() {
+            document.cookie = 'access_token=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 UTC;';
+        }
+
+        // Check for token on page load
+        window.onload = checkAuthToken;
