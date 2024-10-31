@@ -144,22 +144,22 @@ body
         // Function to check token on page load
         async function checkAuthToken() {
             const token = getAuthTokenFromCookies();
-            if (token) {
-                try {
-                    const response = await fetch(AUTH_URI + '/api/auth/validate', {
-                        method: 'GET',
-                        headers: { 'Authorization': `Bearer ${token}` }
-                    });
+            if (!token) return; // Prevent endless loop if no token
 
-                    if (response.ok) {
-                        // Redirect to authenticated app
-                        window.location.href = APP_URI;
-                    } else if (response.status === 401) {
-                        deleteAuthToken(); // Delete invalid token
-                    }
-                } catch (error) {
-                    console.error('Token validation error:', error);
+            try {
+                const response = await fetch(AUTH_URI + '/api/auth/validate', {
+                    method: 'GET',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (response.ok) {
+                    // Redirect to authenticated app
+                    window.location.href = APP_URI;
+                } else if (response.status === 401) {
+                    deleteAuthToken(); // Delete invalid token
                 }
+            } catch (error) {
+                console.error('Token validation error:', error);
             }
         }
 
@@ -184,8 +184,8 @@ body
                 const token = data.access_token;
 
                 if (token) {
-                    // Set token in cookie with expiry, path, and secure flag for production
-                    document.cookie = `access_token=${token}; Path=/;`;
+                    // Set token in cookie with proper settings
+                    document.cookie = `access_token=${token}; Path=/; SameSite=Lax; Secure`;
 
                     // Redirect to APP_URI
                     window.location.href = APP_URI;
@@ -205,8 +205,9 @@ body
 
         // Helper function to delete the auth token cookie
         function deleteAuthToken() {
-            document.cookie = 'access_token=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 UTC;';
+            document.cookie = 'access_token=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 UTC; SameSite=Lax; Secure';
         }
 
         // Check for token on page load
         window.onload = checkAuthToken;
+
